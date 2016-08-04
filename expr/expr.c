@@ -32,16 +32,16 @@
                                 if ((c)->oStackPtr >= (c)->oStackTop)       \
                                     Error(c, "operator stack overflow");    \
                                 ++(c)->oStackPtr;                           \
-                                (c)->oStackPtr->op = (v);                   \
+                                (c)->oStackPtr->ivalue = (v);               \
                             } while (0)
-#define oStackPushData(c,v) do {                                            \
+#define oStackPushPtr(c,v) do {                                             \
                                 if ((c)->oStackPtr >= (c)->oStackTop)       \
                                     Error(c, "operator stack overflow");    \
                                 ++(c)->oStackPtr;                           \
-                                (c)->oStackPtr->data = (v);                 \
+                                (c)->oStackPtr->pvalue = (v);               \
                             } while (0)
-#define oStackTop(c)        ((c)->oStackPtr->op)
-#define oStackTopData(c)    ((c)->oStackPtr->data)
+#define oStackTop(c)        ((c)->oStackPtr->ivalue)
+#define oStackTopPtr(c)     ((c)->oStackPtr->pvalue)
 #define oStackDrop(c)       (--(c)->oStackPtr)
                         
 /* operand stack macros */
@@ -112,7 +112,7 @@ int EvalExpr(EvalState *c, const char *str, VALUE *pValue)
             break;
         case TKN_FCALL:
             oStackPush(c, c->argc);
-            oStackPushData(c, c->fcn);
+            oStackPushPtr(c, c->fcn);
             oStackPush(c, tkn);
             c->fcn = pval.v.fcn;
             c->argc = 0;
@@ -120,7 +120,7 @@ int EvalExpr(EvalState *c, const char *str, VALUE *pValue)
             break;
         case '(':
             if (oStackTop(c) == TKN_FCALL)
-                c->oStackPtr->op = TKN_FCALL_ARGS;
+                c->oStackPtr->ivalue = TKN_FCALL_ARGS;
             else
                 oStackPush(c, tkn);
             unaryPossible = TRUE;
@@ -394,7 +394,7 @@ static void CallFunction(EvalState *c)
 {
     Function *fcn;
     int argc;
-    fcn = oStackTopData(c);
+    fcn = oStackTopPtr(c);
     oStackDrop(c);
     argc = oStackTop(c);
     oStackDrop(c);

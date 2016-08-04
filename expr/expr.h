@@ -14,9 +14,8 @@ typedef double VALUE;
 
 /* operator stack entry */
 typedef union {
-    int op;
-    int argc;
-    void *data;
+    int ivalue;
+    void *pvalue;
 } oEntry;
 
 #define TYPE_NUMBER     1
@@ -66,9 +65,9 @@ struct EvalState {
     oEntry *oStackTop;
     PVAL rStack[RSTACK_SIZE];
     PVAL *rStackPtr;
+    PVAL *rStackTop;
     Function *fcn;
     int argc;
-    PVAL *rStackTop;
     Variable *variables;
     uint8_t *base;      /* base of heap data */
     uint8_t *free;      /* next free heap location */
